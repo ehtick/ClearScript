@@ -43,6 +43,6 @@ You are now ready to use ClearScript:
 
 ![.NET Fiddle QuickTest](/ClearScript/images/DotNetFiddle-QuickTest.png)
 
-You can find this fiddle [here](https://dotnetfiddle.net/3daJda). Click [here](https://dotnetfiddle.net/GdGvZ5) to see the full set of [ClearScript examples](https://microsoft.github.io/ClearScript/Examples/Examples.html) in action.
+You can find this fiddle [here](https://dotnetfiddle.net/3daJda). Click [here](https://dotnetfiddle.net/GdGvZ5) to see the full set of [ClearScript examples](https://clearscript.clearfoundry.net/Examples/Examples.html) in action.
 
 Good luck!

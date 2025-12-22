@@ -63,7 +63,8 @@ void V8Platform::EnsureInitialized()
 
         m_GlobalFlags = V8_SPLIT_PROXY_MANAGED_INVOKE_NOTHROW(V8GlobalFlags, GetGlobalFlags);
         std::vector<std::string> flagStrings;
-        flagStrings.push_back("--expose_gc");
+
+        flagStrings.push_back("--no_memory_pool_share_memory_on_teardown");
 
     #ifdef CLEARSCRIPT_TOP_LEVEL_AWAIT_CONTROL
 
@@ -82,6 +83,11 @@ void V8Platform::EnsureInitialized()
         if (::HasFlag(m_GlobalFlags, V8GlobalFlags::DisableBackgroundWork))
         {
             flagStrings.push_back("--single_threaded");
+        }
+
+        if (!::HasFlag(m_GlobalFlags, V8GlobalFlags::DisableExplicitResourceManagement))
+        {
+            flagStrings.push_back("--js_explicit_resource_management");
         }
 
         if (!flagStrings.empty())
@@ -535,6 +541,13 @@ V8IsolateImpl::V8IsolateImpl(const StdString& name, const v8::ResourceConstraint
 
 //-----------------------------------------------------------------------------
 
+V8GlobalFlags V8IsolateImpl::GetGlobalFlags()
+{
+    return V8Platform::GetInstance().GetGlobalFlags();
+}
+
+//-----------------------------------------------------------------------------
+
 V8IsolateImpl* V8IsolateImpl::GetInstanceFromIsolate(v8::Isolate* pIsolate)
 {
     _ASSERTE(pIsolate);
@@ -869,11 +882,11 @@ void V8IsolateImpl::CollectGarbage(bool exhaustive)
         {
             ClearScriptCache();
             ClearCachesForTesting();
-            RequestGarbageCollectionForTesting(v8::Isolate::kFullGarbageCollection);
+            MemoryPressureNotification(v8::MemoryPressureLevel::kCritical);
         }
         else
         {
-            RequestGarbageCollectionForTesting(v8::Isolate::kMinorGarbageCollection);
+            MemoryPressureNotification(v8::MemoryPressureLevel::kModerate);
         }
 
     END_ISOLATE_SCOPE
@@ -1415,21 +1428,21 @@ void NORETURN V8IsolateImpl::ThrowOutOfMemoryException()
 
 void V8IsolateImpl::ImportMetaInitializeCallback(v8::Local<v8::Context> hContext, v8::Local<v8::Module> hModule, v8::Local<v8::Object> hMeta)
 {
-    GetInstanceFromIsolate(hContext->GetIsolate())->InitializeImportMeta(hContext, hModule, hMeta);
+    GetInstanceFromIsolate(v8::Isolate::GetCurrent())->InitializeImportMeta(hContext, hModule, hMeta);
 }
 
 //-----------------------------------------------------------------------------
 
 v8::MaybeLocal<v8::Promise> V8IsolateImpl::ModuleImportCallback(v8::Local<v8::Context> hContext, v8::Local<v8::Data> hHostDefinedOptions, v8::Local<v8::Value> hResourceName, v8::Local<v8::String> hSpecifier, v8::Local<v8::FixedArray> hImportAssertions)
 {
-    return GetInstanceFromIsolate(hContext->GetIsolate())->ImportModule(hContext, hHostDefinedOptions, hResourceName, hSpecifier, hImportAssertions);
+    return GetInstanceFromIsolate(v8::Isolate::GetCurrent())->ImportModule(hContext, hHostDefinedOptions, hResourceName, hSpecifier, hImportAssertions);
 }
 
 //-----------------------------------------------------------------------------
 
 v8::MaybeLocal<v8::Module> V8IsolateImpl::ModuleResolveCallback(v8::Local<v8::Context> hContext, v8::Local<v8::String> hSpecifier, v8::Local<v8::FixedArray> /*importAssertions*/, v8::Local<v8::Module> hReferrer)
 {
-    return GetInstanceFromIsolate(hContext->GetIsolate())->ResolveModule(hContext, hSpecifier, hReferrer);
+    return GetInstanceFromIsolate(v8::Isolate::GetCurrent())->ResolveModule(hContext, hSpecifier, hReferrer);
 }
 
 //-----------------------------------------------------------------------------
@@ -1655,6 +1668,8 @@ V8IsolateImpl::~V8IsolateImpl()
 
     m_upIsolate->RemoveBeforeCallEnteredCallback(OnBeforeCallEntered);
     m_upIsolate->RemoveNearHeapLimitCallback(HeapExpansionCallback, 0);
+
+    m_upIsolate.reset();
 }
 
 //-----------------------------------------------------------------------------
@@ -2099,7 +2114,7 @@ void V8IsolateImpl::CheckHeapSize(const std::optional<size_t>& optMaxHeapSize, b
         {
             // yes; collect garbage
             ClearCachesForTesting();
-            RequestGarbageCollectionForTesting(v8::Isolate::kFullGarbageCollection);
+            MemoryPressureNotification(v8::MemoryPressureLevel::kCritical);
 
             // is the total heap size still over the limit?
             GetHeapStatistics(heapStatistics);
@@ -2163,7 +2178,7 @@ void V8IsolateImpl::PromiseHook(v8::PromiseHookType type, v8::Local<v8::Promise>
         auto hContext = hPromise->GetCreationContext(v8::Isolate::GetCurrent()).FromMaybe(v8::Local<v8::Context>());
         if (!hContext.IsEmpty())
         {
-            GetInstanceFromIsolate(hContext->GetIsolate())->FlushContextAsync(hContext);
+            GetInstanceFromIsolate(v8::Isolate::GetCurrent())->FlushContextAsync(hContext);
         }
     }
 }
