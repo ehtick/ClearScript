@@ -150,6 +150,7 @@
     <ClCompile Include="..\HostObjectHolderImpl.cpp" />
     <ClCompile Include="..\HostObjectUtil.cpp" />
     <ClCompile Include="..\Mutex.cpp" />
+    <ClCompile Include="..\NativePlatform.Windows.Arm64.cpp" />
     <ClCompile Include="..\RefCount.cpp" />
     <ClCompile Include="..\V8SplitProxyManaged.cpp" />
     <ClCompile Include="..\StdString.cpp" />

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-v8testedrev=14.3.127.17
+v8testedrev=14.7.173.23
 v8testedcommit=
 v8cherrypicks=
 
@@ -170,14 +170,18 @@ if [[ $download == true ]]; then
     if [[ $v8cherrypicks != "" ]]; then
         git cherry-pick --allow-empty-message --keep-redundant-commits $v8cherrypicks >apply-cherry-picks.log 2>apply-cherry-picks.log || fail
     fi
-    git apply --reject --ignore-whitespace ../../V8Patch.txt 2>apply-patch.log || fail
+    patch_failed=false
+    git apply --index --reject --ignore-whitespace ../../V8Patch.txt 2>apply-patch.log || patch_failed=true
     cd build || abort
-    git apply --reject --ignore-whitespace ../../../BuildPatch.txt 2>apply-patch.log || fail
+    git apply --index --reject --ignore-whitespace ../../../BuildPatch.txt 2>apply-patch.log || patch_failed=true
     cd ..
     cd third_party/icu || abort
-    git apply --reject --ignore-whitespace ../../../../ICUPatch.txt 2>apply-patch.log || fail
+    git apply --index --reject --ignore-whitespace ../../../../ICUPatch.txt 2>apply-patch.log || patch_failed=true
     cd ../..
     cd ..
+    if [[ $patch_failed == true ]]; then
+        fail
+    fi
     
     echo "Downloading additional libraries ..."
     git clone -n https://github.com/nlohmann/json.git 2>clone-json.log || fail
@@ -198,12 +202,12 @@ fi
 cd build/v8 || abort
 
 echo "Creating/updating patches ..."
-git diff --ignore-space-change --ignore-space-at-eol >V8Patch.txt 2>create-patch.log || fail
+git diff --ignore-space-change --ignore-space-at-eol HEAD >V8Patch.txt 2>create-patch.log || fail
 cd build || abort
-git diff --ignore-space-change --ignore-space-at-eol >BuildPatch.txt 2>create-patch.log || fail
+git diff --ignore-space-change --ignore-space-at-eol HEAD >BuildPatch.txt 2>create-patch.log || fail
 cd ..
 cd third_party/icu || abort
-git diff --ignore-space-change --ignore-space-at-eol >ICUPatch.txt 2>create-patch.log || fail
+git diff --ignore-space-change --ignore-space-at-eol HEAD >ICUPatch.txt 2>create-patch.log || fail
 cd ../..
 
 if [[ $linux == true ]]; then

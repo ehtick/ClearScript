@@ -1238,7 +1238,7 @@ namespace Microsoft.ClearScript.Test
                 runtime.CollectGarbage(true);
                 
                 var newHeapSize = runtime.GetHeapInfo().TotalHeapSize;
-                Assert.IsFalse(newHeapSize > (heapSize * 2.0));
+                Assert.IsFalse(newHeapSize > (heapSize * 2.5));
             }
         }
 

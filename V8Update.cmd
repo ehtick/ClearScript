@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-set v8testedrev=14.3.127.17
+set v8testedrev=14.7.173.23
 set v8testedcommit=
 set v8cherrypicks=
 
@@ -185,21 +185,29 @@ call git config user.name ClearScript
 if errorlevel 1 goto Error
 call git config user.email "clearscript@clearfoundry.net"
 if errorlevel 1 goto Error
-if "%v8cherrypicks%"=="" goto ApplyV8Patch
+if "%v8cherrypicks%"=="" goto ApplyPatchFiles
 call git cherry-pick --allow-empty-message --keep-redundant-commits %v8cherrypicks% >applyCherryPicks.log 2>&1
 if errorlevel 1 goto Error
-:ApplyV8Patch
-call git apply --reject --ignore-whitespace ..\..\V8Patch.txt 2>applyPatch.log
-if errorlevel 1 goto Error
+:ApplyPatchFiles
+setlocal
+set patchFailed=false
+call git apply --index --reject --ignore-whitespace ..\..\V8Patch.txt 2>applyPatch.log
+if errorlevel 1 set patchFailed=true
 cd build
-call git apply --reject --ignore-whitespace ..\..\..\BuildPatch.txt 2>applyPatch.log
-if errorlevel 1 goto Error
+call git apply --index --reject --ignore-whitespace ..\..\..\BuildPatch.txt 2>applyPatch.log
+if errorlevel 1 set patchFailed=true
 cd ..
 cd third_party\icu
-call git apply --reject --ignore-whitespace ..\..\..\..\ICUPatch.txt 2>applyPatch.log
-if errorlevel 1 goto Error
+call git apply --index --reject --ignore-whitespace ..\..\..\..\ICUPatch.txt 2>applyPatch.log
+if errorlevel 1 set patchFailed=true
 cd ..\..
+if "%patchFailed%"=="true" goto ApplyPatchesFailed
+endlocal
 cd ..
+goto ApplyPatchesDone
+:ApplyPatchesFailed
+endlocal
+goto Error
 :ApplyPatchesDone
 
 :DownloadMiscDone
@@ -223,14 +231,14 @@ cd ..
 :CreatePatches
 echo Creating/updating patches ...
 cd v8
-call git diff --ignore-space-change --ignore-space-at-eol >V8Patch.txt 2>createPatch.log
+call git diff --ignore-space-change --ignore-space-at-eol HEAD >V8Patch.txt 2>createPatch.log
 if errorlevel 1 goto Error
 cd build
-call git diff --ignore-space-change --ignore-space-at-eol >BuildPatch.txt 2>createPatch.log
+call git diff --ignore-space-change --ignore-space-at-eol HEAD >BuildPatch.txt 2>createPatch.log
 if errorlevel 1 goto Error
 cd ..
 cd third_party\icu
-call git diff --ignore-space-change --ignore-space-at-eol >ICUPatch.txt 2>createPatch.log
+call git diff --ignore-space-change --ignore-space-at-eol HEAD >ICUPatch.txt 2>createPatch.log
 if errorlevel 1 goto Error
 cd ..\..
 cd ..

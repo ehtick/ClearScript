@@ -882,12 +882,9 @@ void V8IsolateImpl::CollectGarbage(bool exhaustive)
         {
             ClearScriptCache();
             ClearCachesForTesting();
-            MemoryPressureNotification(v8::MemoryPressureLevel::kCritical);
         }
-        else
-        {
-            MemoryPressureNotification(v8::MemoryPressureLevel::kModerate);
-        }
+
+        CollectGarbageInternal(exhaustive);
 
     END_ISOLATE_SCOPE
 }
@@ -2114,7 +2111,7 @@ void V8IsolateImpl::CheckHeapSize(const std::optional<size_t>& optMaxHeapSize, b
         {
             // yes; collect garbage
             ClearCachesForTesting();
-            MemoryPressureNotification(v8::MemoryPressureLevel::kCritical);
+            CollectGarbageInternal(true);
 
             // is the total heap size still over the limit?
             GetHeapStatistics(heapStatistics);
@@ -2152,6 +2149,15 @@ void V8IsolateImpl::CheckHeapSize(const std::optional<size_t>& optMaxHeapSize, b
             SetUpHeapWatchTimer(forceMinInterval);
         }
     }
+}
+
+//-----------------------------------------------------------------------------
+
+void V8IsolateImpl::CollectGarbageInternal(bool exhaustive)
+{
+    auto failuresRemaining = exhaustive ? 100 : 1;
+    auto allocate = [&failuresRemaining] () noexcept { return failuresRemaining-- <= 0; };
+    m_upIsolate->RetryCustomAllocate(allocate);
 }
 
 //-----------------------------------------------------------------------------

@@ -442,11 +442,6 @@ public:
         m_upIsolate->ContextDisposedNotification(v8::ContextDependants::kSomeDependants);
     }
 
-    void MemoryPressureNotification(v8::MemoryPressureLevel level)
-    {
-        m_upIsolate->MemoryPressureNotification(level);
-    }
-
     void ClearCachesForTesting()
     {
         m_upIsolate->ClearCachesForTesting();
@@ -657,6 +652,7 @@ private:
 
     void SetUpHeapWatchTimer(bool forceMinInterval);
     void CheckHeapSize(const std::optional<size_t>& optMaxHeapSize, bool timerTriggered);
+    void CollectGarbageInternal(bool exhaustive);
 
     static void OnBeforeCallEntered(v8::Isolate* pIsolate);
     void OnBeforeCallEntered();

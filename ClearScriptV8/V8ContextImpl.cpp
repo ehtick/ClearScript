@@ -216,7 +216,7 @@ inline bool TryGetValueAsNumber(v8::Local<v8::Context> hContext, const v8::Local
 template <typename TInfo>
 inline V8ContextImpl* GetContextImplFromHolder(const TInfo& info)
 {
-    auto hHolder = info.HolderV2();
+    auto hHolder = info.Holder();
     if (!hHolder.IsEmpty() && hHolder->InternalFieldCount() > 0)
     {
         auto hField = hHolder->GetInternalField(0);
@@ -3244,7 +3244,7 @@ v8::Intercepted V8ContextImpl::GetHostObjectProperty(v8::Local<v8::Name> hKey, c
         auto pContextImpl = ::GetContextImplFromData(info);
         if (CheckContextImplForHostObjectCallback(pContextImpl))
         {
-            auto hHolder = info.HolderV2();
+            auto hHolder = info.Holder();
             auto pvObject = pContextImpl->GetHostObject(hHolder);
 
             auto hName = ::ValueAsString(hKey);
@@ -3318,7 +3318,7 @@ v8::Intercepted V8ContextImpl::SetHostObjectProperty(v8::Local<v8::Name> hKey, v
     auto pContextImpl = ::GetContextImplFromData(info);
     if (CheckContextImplForHostObjectCallback(pContextImpl))
     {
-        auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+        auto pvObject = pContextImpl->GetHostObject(info.Holder());
         if (pvObject != nullptr)
         {
             try
@@ -3351,7 +3351,7 @@ v8::Intercepted V8ContextImpl::QueryHostObjectProperty(v8::Local<v8::Name> hKey,
     auto pContextImpl = ::GetContextImplFromData(info);
     if (CheckContextImplForHostObjectCallback(pContextImpl))
     {
-        auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+        auto pvObject = pContextImpl->GetHostObject(info.Holder());
         if (pvObject != nullptr)
         {
             try
@@ -3393,7 +3393,7 @@ v8::Intercepted V8ContextImpl::DeleteHostObjectProperty(v8::Local<v8::Name> hKey
     auto pContextImpl = ::GetContextImplFromData(info);
     if (CheckContextImplForHostObjectCallback(pContextImpl))
     {
-        auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+        auto pvObject = pContextImpl->GetHostObject(info.Holder());
         if (pvObject != nullptr)
         {
             try
@@ -3419,7 +3419,7 @@ void V8ContextImpl::GetHostObjectPropertyNames(const v8::PropertyCallbackInfo<v8
         auto pContextImpl = ::GetContextImplFromData(info);
         if (CheckContextImplForHostObjectCallback(pContextImpl))
         {
-            auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+            auto pvObject = pContextImpl->GetHostObject(info.Holder());
             if (pvObject != nullptr)
             {
                 try
@@ -3455,7 +3455,7 @@ v8::Intercepted V8ContextImpl::GetHostObjectProperty(uint32_t index, const v8::P
     auto pContextImpl = ::GetContextImplFromData(info);
     if (CheckContextImplForHostObjectCallback(pContextImpl))
     {
-        auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+        auto pvObject = pContextImpl->GetHostObject(info.Holder());
         if (pvObject != nullptr)
         {
             try
@@ -3481,7 +3481,7 @@ v8::Intercepted V8ContextImpl::SetHostObjectProperty(uint32_t index, v8::Local<v
     auto pContextImpl = ::GetContextImplFromData(info);
     if (CheckContextImplForHostObjectCallback(pContextImpl))
     {
-        auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+        auto pvObject = pContextImpl->GetHostObject(info.Holder());
         if (pvObject != nullptr)
         {
             try
@@ -3508,7 +3508,7 @@ v8::Intercepted V8ContextImpl::QueryHostObjectProperty(uint32_t index, const v8:
     auto pContextImpl = ::GetContextImplFromData(info);
     if (CheckContextImplForHostObjectCallback(pContextImpl))
     {
-        auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+        auto pvObject = pContextImpl->GetHostObject(info.Holder());
         if (pvObject != nullptr)
         {
             try
@@ -3543,7 +3543,7 @@ v8::Intercepted V8ContextImpl::DeleteHostObjectProperty(uint32_t index, const v8
     auto pContextImpl = ::GetContextImplFromData(info);
     if (CheckContextImplForHostObjectCallback(pContextImpl))
     {
-        auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+        auto pvObject = pContextImpl->GetHostObject(info.Holder());
         if (pvObject != nullptr)
         {
             try
@@ -3569,7 +3569,7 @@ void V8ContextImpl::GetHostObjectPropertyIndices(const v8::PropertyCallbackInfo<
         auto pContextImpl = ::GetContextImplFromData(info);
         if (CheckContextImplForHostObjectCallback(pContextImpl))
         {
-            auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+            auto pvObject = pContextImpl->GetHostObject(info.Holder());
             if (pvObject != nullptr)
             {
                 try
@@ -3607,7 +3607,7 @@ v8::Intercepted V8ContextImpl::GetFastHostObjectProperty(v8::Local<v8::Name> hKe
         auto pContextImpl = ::GetContextImplFromData(info);
         if (CheckContextImplForHostObjectCallback(pContextImpl))
         {
-            auto hHolder = info.HolderV2();
+            auto hHolder = info.Holder();
             auto pvObject = pContextImpl->GetHostObject(hHolder);
 
             auto hName = ::ValueAsString(hKey);
@@ -3672,7 +3672,7 @@ v8::Intercepted V8ContextImpl::SetFastHostObjectProperty(v8::Local<v8::Name> hKe
     auto pContextImpl = ::GetContextImplFromData(info);
     if (CheckContextImplForHostObjectCallback(pContextImpl))
     {
-        auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+        auto pvObject = pContextImpl->GetHostObject(info.Holder());
         if (pvObject != nullptr)
         {
             try
@@ -3705,7 +3705,7 @@ v8::Intercepted V8ContextImpl::QueryFastHostObjectProperty(v8::Local<v8::Name> h
     auto pContextImpl = ::GetContextImplFromData(info);
     if (CheckContextImplForHostObjectCallback(pContextImpl))
     {
-        auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+        auto pvObject = pContextImpl->GetHostObject(info.Holder());
         if (pvObject != nullptr)
         {
             try
@@ -3758,7 +3758,7 @@ v8::Intercepted V8ContextImpl::DeleteFastHostObjectProperty(v8::Local<v8::Name> 
     auto pContextImpl = ::GetContextImplFromData(info);
     if (CheckContextImplForHostObjectCallback(pContextImpl))
     {
-        auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+        auto pvObject = pContextImpl->GetHostObject(info.Holder());
         if (pvObject != nullptr)
         {
             try
@@ -3784,7 +3784,7 @@ void V8ContextImpl::GetFastHostObjectPropertyNames(const v8::PropertyCallbackInf
         auto pContextImpl = ::GetContextImplFromData(info);
         if (CheckContextImplForHostObjectCallback(pContextImpl))
         {
-            auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+            auto pvObject = pContextImpl->GetHostObject(info.Holder());
             if (pvObject != nullptr)
             {
                 try
@@ -3820,7 +3820,7 @@ v8::Intercepted V8ContextImpl::GetFastHostObjectProperty(uint32_t index, const v
     auto pContextImpl = ::GetContextImplFromData(info);
     if (CheckContextImplForHostObjectCallback(pContextImpl))
     {
-        auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+        auto pvObject = pContextImpl->GetHostObject(info.Holder());
         if (pvObject != nullptr)
         {
             try
@@ -3846,7 +3846,7 @@ v8::Intercepted V8ContextImpl::SetFastHostObjectProperty(uint32_t index, v8::Loc
     auto pContextImpl = ::GetContextImplFromData(info);
     if (CheckContextImplForHostObjectCallback(pContextImpl))
     {
-        auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+        auto pvObject = pContextImpl->GetHostObject(info.Holder());
         if (pvObject != nullptr)
         {
             try
@@ -3873,7 +3873,7 @@ v8::Intercepted V8ContextImpl::QueryFastHostObjectProperty(uint32_t index, const
     auto pContextImpl = ::GetContextImplFromData(info);
     if (CheckContextImplForHostObjectCallback(pContextImpl))
     {
-        auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+        auto pvObject = pContextImpl->GetHostObject(info.Holder());
         if (pvObject != nullptr)
         {
             try
@@ -3920,7 +3920,7 @@ v8::Intercepted V8ContextImpl::DeleteFastHostObjectProperty(uint32_t index, cons
     auto pContextImpl = ::GetContextImplFromData(info);
     if (CheckContextImplForHostObjectCallback(pContextImpl))
     {
-        auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+        auto pvObject = pContextImpl->GetHostObject(info.Holder());
         if (pvObject != nullptr)
         {
             try
@@ -3946,7 +3946,7 @@ void V8ContextImpl::GetFastHostObjectPropertyIndices(const v8::PropertyCallbackI
         auto pContextImpl = ::GetContextImplFromData(info);
         if (CheckContextImplForHostObjectCallback(pContextImpl))
         {
-            auto pvObject = pContextImpl->GetHostObject(info.HolderV2());
+            auto pvObject = pContextImpl->GetHostObject(info.Holder());
             if (pvObject != nullptr)
             {
                 try
